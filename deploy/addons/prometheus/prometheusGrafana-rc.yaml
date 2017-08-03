@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: prometheus-grafana
+  namespace: kube-system
+  labels:
+    name: prometheusGrafana
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/minikube-addons: prometheus
+spec:
+  replicas: 1
+  selector:
+    addonmanager.kubernetes.io/mode: Reconcile
+    name: prometheusGrafana
+  template:
+    metadata:
+      name: prometheusGrafana
+      labels:
+        name: prometheusGrafana
+        addonmanager.kubernetes.io/mode: Reconcile
+    spec:
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v1.7.0
+        args:
+          - '-storage.local.retention=12h'
+          - '-storage.local.memory-chunks=500000'
+          - '-config.file=/etc/prometheus/prometheus.yaml'
+          - '-alertmanager.url=http://alertmanager:9093/'
+        ports:
+        - name: webui
+          containerPort: 9090
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50M
+          limits:
+            cpu: 50m
+            memory: 50M
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/prometheus
+        - name: rules-volume
+          mountPath: /etc/prometheus-rules
+      - name: grafana-core
+        image: grafana/grafana:4.2.0
+        imagePullPolicy: IfNotPresent
+        # env:
+        resources:
+          # keep request = limit to keep this container in guaranteed class
+          requests:
+            cpu: 50m
+            memory: 50Mi
+          limits:
+            cpu: 50m
+            memory: 50Mi
+        env:
+          # The following env variables set up basic auth twith the default admin user and admin password.
+          - name: GF_AUTH_BASIC_ENABLED
+            value: "true"
+          - name: GF_AUTH_ANONYMOUS_ENABLED
+            value: "false"
+          # - name: GF_AUTH_ANONYMOUS_ORG_ROLE
+          #   value: Admin
+          # does not really work, because of template variables in exported dashboards:
+          # - name: GF_DASHBOARDS_JSON_ENABLED
+          #   value: "true"
+        readinessProbe:
+          httpGet:
+            path: /login
+            port: 3000
+          # initialDelaySeconds: 30
+          # timeoutSeconds: 1
+        volumeMounts:
+        - name: grafana-persistent-storage
+          mountPath: /var
+      volumes:
+      - name: config-volume
+        configMap:
+          name: prometheus-core
+#      - name: rules-volume
+#        configMap:
+#          name: prometheus-rules
+      - name: grafana-persistent-storage
+        emptyDir: {}

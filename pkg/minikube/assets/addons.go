@@ -125,6 +125,33 @@ var Addons = map[string]*Addon{
 			"heapster-svc.yaml",
 			"0640"),
 	}, false, "heapster"),
+	"prometheus": NewAddon([]*BinDataAsset{
+		NewBinDataAsset(
+			"deploy/addons/prometheus/prometheusGrafana-rc.yaml",
+			constants.AddonsPath,
+			"prometheusGrafana-rc.yaml",
+			"0640"),
+		NewBinDataAsset(
+			"deploy/addons/prometheus/prometheus-rules.yaml",
+			constants.AddonsPath,
+			"prometheus-rules.yaml",
+			"0640"),
+		NewBinDataAsset(
+			"deploy/addons/prometheus/prometheus-svc.yaml",
+			constants.AddonsPath,
+			"prometheus-svc.yaml",
+			"0640"),
+		NewBinDataAsset(
+			"deploy/addons/prometheus/grafana-svc.yaml",
+			constants.AddonsPath,
+			"grafana-svc.yaml",
+			"0640"),
+		NewBinDataAsset(
+			"deploy/addons/prometheus/prometheus-cm.yaml",
+			constants.AddonsPath,
+			"prometheus-cm.yaml",
+			"0640"),
+	}, false, "prometheus"),
 	"ingress": NewAddon([]*BinDataAsset{
 		NewBinDataAsset(
 			"deploy/addons/ingress/ingress-configmap.yaml",

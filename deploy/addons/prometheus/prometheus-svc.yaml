@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: monitoring-prometheus
+  namespace: kube-system
+  labels:
+    kubernetes.io/name: monitoring-prometheus
+    kubernetes.io/minikube-addons: prometheus
+    addonmanager.kubernetes.io/mode: Reconcile
+spec:
+  type: NodePort
+  ports:
+    - port: 9090
+      protocol: TCP
+      name: webui
+  selector:
+    addonmanager.kubernetes.io/mode: Reconcile
+    name: prometheusGrafana
